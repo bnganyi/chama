@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "autoname": "CCS-.####",
+ "creation": "2026-03-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "active_chama",
+  "switched_at",
+  "switched_by",
+  "source_channel",
+  "previous_chama",
+  "session_identifier"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "active_chama",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Active Chama",
+   "options": "Chama",
+   "reqd": 1
+  },
+  {
+   "fieldname": "switched_at",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Switched At",
+   "reqd": 1
+  },
+  {
+   "fieldname": "switched_by",
+   "fieldtype": "Link",
+   "label": "Switched By",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_channel",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Source Channel",
+   "options": "WEB\nMOBILE\nAPI",
+   "reqd": 1
+  },
+  {
+   "fieldname": "previous_chama",
+   "fieldtype": "Link",
+   "label": "Previous Chama",
+   "options": "Chama"
+  },
+  {
+   "fieldname": "session_identifier",
+   "fieldtype": "Data",
+   "label": "Session Identifier"
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Chama Core",
+ "name": "Chama Context Session",
+ "naming_rule": "Expression (by Autoname)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "export": 1
+  }
+ ],
+ "sort_field": "switched_at",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}

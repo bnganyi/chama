@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "autoname": "field:chama",
+ "creation": "2026-03-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "chama",
+  "budget_overrun_mode",
+  "contribution_policy_json",
+  "loan_policy_json",
+  "notification_preferences_json",
+  "quorum_rules_json",
+  "voting_rules_json",
+  "exit_policy_json",
+  "investment_policy_json"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "chama",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Chama",
+   "options": "Chama",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "Warn",
+   "fieldname": "budget_overrun_mode",
+   "fieldtype": "Select",
+   "label": "Budget Overrun Mode",
+   "options": "Block\nWarn\nAllow With Escalation"
+  },
+  {
+   "fieldname": "contribution_policy_json",
+   "fieldtype": "Long Text",
+   "label": "Contribution Policy (JSON)"
+  },
+  {
+   "fieldname": "loan_policy_json",
+   "fieldtype": "Long Text",
+   "label": "Loan Policy (JSON)"
+  },
+  {
+   "fieldname": "notification_preferences_json",
+   "fieldtype": "Long Text",
+   "label": "Notification Preferences (JSON)"
+  },
+  {
+   "fieldname": "quorum_rules_json",
+   "fieldtype": "Long Text",
+   "label": "Quorum Rules (JSON)"
+  },
+  {
+   "fieldname": "voting_rules_json",
+   "fieldtype": "Long Text",
+   "label": "Voting Rules (JSON)"
+  },
+  {
+   "fieldname": "exit_policy_json",
+   "fieldtype": "Long Text",
+   "label": "Exit Policy (JSON)"
+  },
+  {
+   "fieldname": "investment_policy_json",
+   "fieldtype": "Long Text",
+   "label": "Investment Policy (JSON)"
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Chama Core",
+ "name": "Chama Settings",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,182 @@
+{
+ "actions": [],
+ "autoname": "MB-.####",
+ "creation": "2026-03-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "full_name",
+  "chama",
+  "status",
+  "user",
+  "first_name",
+  "last_name",
+  "phone",
+  "email",
+  "national_id",
+  "date_of_birth",
+  "address_text",
+  "join_request_date",
+  "join_date",
+  "exit_date",
+  "primary_role",
+  "active_flag",
+  "is_voting_eligible",
+  "is_loan_eligible",
+  "is_contribution_eligible",
+  "suspension_reason",
+  "exit_reason"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "chama",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Chama",
+   "options": "Chama",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nActive\nSuspended\nDormant\nExit In Progress\nExited\nRejected\nDeceased",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "Linked User",
+   "options": "User"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name"
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "national_id",
+   "fieldtype": "Data",
+   "label": "National ID",
+   "reqd": 1
+  },
+  {
+   "fieldname": "date_of_birth",
+   "fieldtype": "Date",
+   "label": "Date of Birth"
+  },
+  {
+   "fieldname": "address_text",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "join_request_date",
+   "fieldtype": "Date",
+   "label": "Join Request Date"
+  },
+  {
+   "fieldname": "join_date",
+   "fieldtype": "Date",
+   "label": "Join Date"
+  },
+  {
+   "fieldname": "exit_date",
+   "fieldtype": "Date",
+   "label": "Exit Date"
+  },
+  {
+   "fieldname": "primary_role",
+   "fieldtype": "Select",
+   "label": "Primary Role",
+   "options": "\nMember\nTreasurer\nChair\nSecretary\nAuditor\nCommittee"
+  },
+  {
+   "fieldname": "active_flag",
+   "fieldtype": "Check",
+   "label": "Active",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_voting_eligible",
+   "fieldtype": "Check",
+   "label": "Voting Eligible"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_loan_eligible",
+   "fieldtype": "Check",
+   "label": "Loan Eligible"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_contribution_eligible",
+   "fieldtype": "Check",
+   "label": "Contribution Eligible"
+  },
+  {
+   "fieldname": "suspension_reason",
+   "fieldtype": "Small Text",
+   "label": "Suspension Reason"
+  },
+  {
+   "fieldname": "exit_reason",
+   "fieldtype": "Small Text",
+   "label": "Exit Reason"
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Chama Core",
+ "name": "Chama Member",
+ "naming_rule": "Expression (by Autoname)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

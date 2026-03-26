@@ -1,0 +1,126 @@
+{
+ "actions": [],
+ "autoname": "CH-.####",
+ "creation": "2026-03-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "chama_name",
+  "chama_code",
+  "status",
+  "base_currency",
+  "timezone",
+  "country",
+  "founding_date",
+  "description",
+  "owner_user",
+  "allow_new_member_applications",
+  "default_language",
+  "archived_on"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "chama_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Chama Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "chama_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Chama Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nInactive\nArchived",
+   "reqd": 1
+  },
+  {
+   "fieldname": "base_currency",
+   "fieldtype": "Link",
+   "label": "Base Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "default": "Africa/Nairobi",
+   "fieldname": "timezone",
+   "fieldtype": "Data",
+   "label": "Timezone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country"
+  },
+  {
+   "fieldname": "founding_date",
+   "fieldtype": "Date",
+   "label": "Founding Date"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "owner_user",
+   "fieldtype": "Link",
+   "label": "Owner / Primary Admin",
+   "options": "User"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_new_member_applications",
+   "fieldtype": "Check",
+   "label": "Allow New Member Applications"
+  },
+  {
+   "fieldname": "default_language",
+   "fieldtype": "Data",
+   "label": "Default Language"
+  },
+  {
+   "fieldname": "archived_on",
+   "fieldtype": "Datetime",
+   "label": "Archived On",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Chama Core",
+ "name": "Chama",
+ "naming_rule": "Expression (by Autoname)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -86,7 +86,7 @@ app_license = "mit"
 # ------------
 
 # before_install = "chama.install.before_install"
-# after_install = "chama.install.after_install"
+after_install = "chama.chama_core.setup.after_install"
 
 # Uninstallation
 # ------------
@@ -120,13 +120,16 @@ app_license = "mit"
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+permission_query_conditions = {
+	"Chama Member": "chama.chama_core.services.permissions.get_permission_query_conditions",
+	"Chama Settings": "chama.chama_core.services.permissions.get_permission_query_conditions",
+	"Chama Member Role Assignment": "chama.chama_core.services.permissions.get_permission_query_conditions",
+	"Chama Context Session": "chama.chama_core.services.permissions.get_permission_query_conditions",
+}
+
+has_permission = {
+	"Chama Member": "chama.chama_core.services.permissions.has_chama_doc_permission",
+}
 
 # Document Events
 # ---------------
@@ -143,23 +146,13 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"chama.tasks.all"
-# 	],
-# 	"daily": [
-# 		"chama.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"chama.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"chama.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"chama.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"all": [],
+	"daily": [],
+	"hourly": [],
+	"weekly": [],
+	"monthly": [],
+}
 
 # Testing
 # -------
