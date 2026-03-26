@@ -1,0 +1,143 @@
+{
+ "actions": [],
+ "autoname": "CPT-.####",
+ "creation": "2026-03-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "chama",
+  "member",
+  "payment_date",
+  "amount_received",
+  "payment_method",
+  "payment_reference",
+  "source_channel",
+  "status",
+  "entered_by",
+  "received_into_account",
+  "remarks",
+  "reversal_of",
+  "duplicate_flag",
+  "allocations"
+ ],
+ "fields": [
+  {
+   "fieldname": "chama",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Chama",
+   "options": "Chama",
+   "reqd": 1
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Member",
+   "options": "Chama Member",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Payment Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount_received",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount Received",
+   "reqd": 1
+  },
+  {
+   "default": "Mobile Money",
+   "fieldname": "payment_method",
+   "fieldtype": "Select",
+   "label": "Payment Method",
+   "options": "Mobile Money\nCash\nBank\nInternal Transfer\nAdjustment",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_reference",
+   "fieldtype": "Data",
+   "label": "Payment Reference"
+  },
+  {
+   "default": "Desk",
+   "fieldname": "source_channel",
+   "fieldtype": "Select",
+   "label": "Source Channel",
+   "options": "Mobile\nDesk\nImport\nAPI"
+  },
+  {
+   "default": "Recorded",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Recorded\nAllocated\nPartially Allocated\nReversed\nFlagged"
+  },
+  {
+   "fieldname": "entered_by",
+   "fieldtype": "Link",
+   "label": "Entered By",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "received_into_account",
+   "fieldtype": "Data",
+   "label": "Received Into Account"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "reversal_of",
+   "fieldtype": "Link",
+   "label": "Reversal Of",
+   "options": "Chama Contribution Payment"
+  },
+  {
+   "default": "0",
+   "fieldname": "duplicate_flag",
+   "fieldtype": "Check",
+   "label": "Duplicate Flag"
+  },
+  {
+   "fieldname": "allocations",
+   "fieldtype": "Table",
+   "label": "Allocations",
+   "options": "Contribution Payment Allocation"
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Chama Contributions",
+ "name": "Chama Contribution Payment",
+ "naming_rule": "Expression (by Autoname)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

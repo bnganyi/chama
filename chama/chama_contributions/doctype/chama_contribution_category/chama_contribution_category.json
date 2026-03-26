@@ -1,0 +1,144 @@
+{
+ "actions": [],
+ "autoname": "CCAT-.####",
+ "creation": "2026-03-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "chama",
+  "category_name",
+  "category_code",
+  "category_type",
+  "amount_type",
+  "default_amount",
+  "frequency",
+  "mandatory",
+  "allow_partial_payment",
+  "allow_future_prepayment",
+  "grace_days",
+  "active",
+  "start_date",
+  "end_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "chama",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Chama",
+   "options": "Chama",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "category_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Category Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "category_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Category Code",
+   "reqd": 1
+  },
+  {
+   "default": "Shares",
+   "fieldname": "category_type",
+   "fieldtype": "Select",
+   "label": "Category Type",
+   "options": "Shares\nWelfare\nEmergency\nInvestment\nPenalty\nLevy\nJoining Fee\nOther",
+   "reqd": 1
+  },
+  {
+   "default": "Fixed",
+   "fieldname": "amount_type",
+   "fieldtype": "Select",
+   "label": "Amount Type",
+   "options": "Fixed\nVariable",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_amount",
+   "fieldtype": "Currency",
+   "label": "Default Amount"
+  },
+  {
+   "default": "Monthly",
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Frequency",
+   "options": "Weekly\nMonthly\nQuarterly\nAnnual\nAd Hoc",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "mandatory",
+   "fieldtype": "Check",
+   "label": "Mandatory"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_partial_payment",
+   "fieldtype": "Check",
+   "label": "Allow Partial Payment"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_future_prepayment",
+   "fieldtype": "Check",
+   "label": "Allow Future Prepayment"
+  },
+  {
+   "default": "0",
+   "fieldname": "grace_days",
+   "fieldtype": "Int",
+   "label": "Grace Days"
+  },
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Chama Contributions",
+ "name": "Chama Contribution Category",
+ "naming_rule": "Expression (by Autoname)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

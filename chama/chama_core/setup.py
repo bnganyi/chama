@@ -9,8 +9,9 @@ import frappe
 
 
 def after_install():
-    """Create the Chama Core Module Def record if it does not already exist."""
+    """Create Module Def records for all chama modules."""
     _ensure_module_def("Chama Core", "chama")
+    _ensure_module_def("Chama Contributions", "chama")
 
 
 def _ensure_module_def(module_name, app_name):

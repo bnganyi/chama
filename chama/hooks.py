@@ -121,14 +121,24 @@ after_install = "chama.chama_core.setup.after_install"
 # Permissions evaluated in scripted ways
 
 permission_query_conditions = {
+	# Phase A — Chama Core
 	"Chama Member": "chama.chama_core.services.permissions.get_permission_query_conditions",
 	"Chama Settings": "chama.chama_core.services.permissions.get_permission_query_conditions",
 	"Chama Member Role Assignment": "chama.chama_core.services.permissions.get_permission_query_conditions",
 	"Chama Context Session": "chama.chama_core.services.permissions.get_permission_query_conditions",
+	# Phase B — Chama Contributions
+	"Chama Contribution Category": "chama.chama_core.services.permissions.get_permission_query_conditions",
+	"Chama Contribution Cycle": "chama.chama_core.services.permissions.get_permission_query_conditions",
+	"Chama Contribution Obligation": "chama.chama_core.services.permissions.get_permission_query_conditions",
+	"Chama Contribution Payment": "chama.chama_core.services.permissions.get_permission_query_conditions",
 }
 
 has_permission = {
+	# Phase A — Chama Core
 	"Chama Member": "chama.chama_core.services.permissions.has_chama_doc_permission",
+	# Phase B — Chama Contributions
+	"Chama Contribution Obligation": "chama.chama_core.services.permissions.has_chama_doc_permission",
+	"Chama Contribution Payment": "chama.chama_core.services.permissions.has_chama_doc_permission",
 }
 
 # Document Events
@@ -148,7 +158,12 @@ has_permission = {
 
 scheduler_events = {
 	"all": [],
-	"daily": [],
+	"daily": [
+		"chama.chama_contributions.services.cycle_generation.generate_due_cycles_for_today",
+		"chama.chama_contributions.services.obligation_status_jobs.refresh_due_statuses",
+		"chama.chama_contributions.services.obligation_status_jobs.refresh_overdue_statuses",
+		"chama.chama_contributions.services.obligation_status_jobs.apply_penalties_skeleton",
+	],
 	"hourly": [],
 	"weekly": [],
 	"monthly": [],

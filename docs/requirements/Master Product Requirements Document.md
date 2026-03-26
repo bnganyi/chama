@@ -17591,7 +17591,7 @@ System must NOT go live if:
 4.  Cross-module consistency must be proven.
 5.  Security must be validated, not assumed.
 
-# SECTION 5 — CURSOR DEVELOPMENT & CODE GENERATION RULES
+# SECTION 5: CURSOR DEVELOPMENT & CODE GENERATION RULES
 
 **11.1 PURPOSE**
 
@@ -17929,3 +17929,326 @@ These must ALWAYS hold:
 5.  Every automation is idempotent
 6.  Every report matches source data
 7.  Every piece of code is explainable
+
+# SECTION 6: FRAPPE ECOSYSTEM REUSE POLICY
+
+**12.1 PURPOSE**
+
+This document defines:
+
+- how the system uses **ERPNext / Frappe v16**
+- how and when to use **Frappe ecosystem apps**
+- what must **never be reimplemented**
+- how custom modules must integrate with ecosystem modules
+
+This document is **binding for all development and Cursor-generated code**.
+
+**12.2 CORE PRINCIPLE**
+
+**Reuse first. Extend second. Never replace without justification.**
+
+**12.3 SYSTEM ARCHITECTURE POSITIONING**
+
+The system consists of three layers:
+
+**1\. PLATFORM LAYER (Frappe / ERPNext)**
+
+This provides:
+
+- Users
+- Roles
+- Permissions
+- Workflows
+- Scheduler
+- Reports
+- API framework
+- File storage
+- Background jobs
+
+👉 This layer is **never reimplemented**
+
+**2\. ECOSYSTEM LAYER (Frappe Apps)**
+
+Includes:
+
+- **Frappe Lending**
+- **Frappe HRMS**
+- Any other official Frappe apps
+
+👉 These are reused where they are **authoritative**
+
+**3\. CHAMA APPLICATION LAYER (CUSTOM)**
+
+Your system:
+
+- chama_core
+- chama_contributions
+- chama_loans (wrapper)
+- chama_disbursements
+- chama_reconciliation
+- chama_governance
+- chama_investments
+
+👉 This layer implements:
+
+- Chama-specific behavior
+- Multi-tenant isolation
+- Cross-module orchestration
+
+**12.4 MANDATORY REUSE RULES**
+
+**12.4.1 Loans MUST use Frappe Lending**
+
+**Rule:**
+
+All loan lifecycle logic must be handled by:  
+👉 **Frappe Lending**
+
+**This includes:**
+
+- loan accounts
+- disbursement logic
+- repayment schedules
+- interest calculations
+- loan status transitions
+- amortization
+
+**Chama layer responsibilities (allowed):**
+
+- attach chama field
+- attach member mapping
+- enforce Chama eligibility rules
+- enforce guarantor rules
+- add approval overlays
+- integrate with notifications
+- expose APIs
+- reporting
+
+**Forbidden:**
+
+❌ Rebuilding loan engine  
+❌ Custom amortization logic  
+❌ Custom repayment schedule system  
+❌ Duplicating loan balances outside Lending
+
+**12.4.2 ERPNext Core Features MUST NOT be duplicated**
+
+**Must reuse:**
+
+| **Feature** | **Source** |
+| --- | --- |
+| Users | Frappe User |
+| Roles | Frappe Role |
+| Permissions | Frappe Permission system |
+| Workflows | Frappe Workflow |
+| Scheduler | Background jobs |
+| Notifications | Email/SMS framework |
+
+**Forbidden:**
+
+❌ Custom user system  
+❌ Custom role engine  
+❌ Custom workflow engine  
+❌ Custom scheduler framework
+
+**12.4.3 HRMS is OPTIONAL**
+
+Use **Frappe HRMS** only if:
+
+- you introduce operational staff
+- payroll is needed
+- employee lifecycle becomes complex
+
+**For v1:**
+
+👉 DO NOT integrate HRMS
+
+**12.5 INTEGRATION PATTERN RULES**
+
+**12.5.1 Extension, Not Modification**
+
+**Allowed:**
+
+- Custom fields
+- Event hooks
+- Wrapper services
+- Integration APIs
+
+**Forbidden:**
+
+❌ Editing core app files  
+❌ Forking Frappe apps  
+❌ Changing core logic
+
+**12.5.2 Wrapper Pattern (MANDATORY)**
+
+Example for Loans:
+
+chama_loans/  
+services/  
+loan_service.py # wraps Lending
+
+**Example behavior:**
+
+def apply_loan(member, chama, amount):  
+validate_chama_eligibility(member, chama)  
+return lending_create_loan(...)
+
+**12.5.3 Event Hook Pattern**
+
+Use Frappe hooks:
+
+- on_submit
+- on_update
+- after_insert
+
+Example:
+
+- when loan disbursed → trigger Chama notification
+- when repayment posted → update analytics
+
+**12.5.4 Data Ownership Rule**
+
+| **Domain** | **Source of Truth** |
+| --- | --- |
+| Loans | Lending |
+| Contributions | Chama |
+| Members | Chama |
+| Users | Frappe |
+| Roles | Frappe |
+| Disbursements | Chama |
+
+**12.6 DATA SYNCHRONIZATION RULES**
+
+**12.6.1 No Duplicate Truth**
+
+Example:
+
+- loan balance must only exist in Lending
+- Chama must read, not recompute
+
+**12.6.2 Read vs Write Rules**
+
+| **Action** | **Rule** |
+| --- | --- |
+| Read loan data | from Lending |
+| Write loan data | via Lending APIs |
+| Extend loan | via custom fields |
+
+**12.6.3 Sync Events**
+
+Must be triggered on:
+
+- loan disbursement
+- repayment posting
+- loan closure
+
+**12.7 CURSOR-SPECIFIC RULES**
+
+**12.7.1 Cursor must not invent replacements**
+
+Forbidden prompts:
+
+❌ “Build a loan system”  
+❌ “Create amortization logic”
+
+**12.7.2 Required prompt pattern**
+
+Example:
+
+Extend Frappe Lending Loan DocType with Chama-specific fields and validation.
+
+**12.7.3 Enforcement**
+
+Every Cursor-generated loan-related code must be reviewed for:
+
+- duplication of Lending logic
+- violation of reuse rules
+
+**12.8 EXTENSION POINTS (ALLOWED CUSTOMIZATION)**
+
+**Loans**
+
+- guarantors (custom DocType)
+- Chama eligibility logic
+- approval workflows
+- reporting
+- notifications
+
+**Contributions**
+
+Fully custom:
+
+- obligations
+- allocation engine
+- penalties
+
+**Disbursements**
+
+Fully custom:
+
+- approval layer
+- execution tracking
+
+**Governance**
+
+Fully custom
+
+**Investments**
+
+Fully custom
+
+**12.9 ANTI-PATTERNS (STRICTLY FORBIDDEN)**
+
+**❌ Rebuilding Lending features**
+
+**❌ Copying ERPNext core logic into custom app**
+
+**❌ Creating parallel systems (e.g., duplicate loan tables)**
+
+**❌ Mixing core and custom responsibilities**
+
+**❌ Bypassing ecosystem APIs**
+
+**12.10 VERSION ALIGNMENT RULE**
+
+System must align with:
+
+- ERPNext v16
+- Frappe v16
+- Compatible versions of Lending
+
+**Forbidden:**
+
+❌ mixing incompatible versions  
+❌ modifying ecosystem internals to “make it work”
+
+**12.11 FUTURE EXTENSIBILITY**
+
+Allowed future integrations:
+
+- Payment gateways
+- Banking APIs
+- SMS providers
+- Credit scoring services
+
+Must follow same rule:  
+👉 integrate, do not replace core systems
+
+**12.12 REVIEW CHECKLIST**
+
+Before accepting any module:
+
+- Are we reusing ecosystem correctly?
+- Are we duplicating any Lending logic?
+- Are we modifying core app files?
+- Are we introducing parallel systems?
+- Is data ownership respected?
+
+**12.13 FINAL INVARIANTS**
+
+1.  Lending is the single source of truth for loans
+2.  ERPNext core features are never duplicated
+3.  Custom app extends, never replaces
+4.  No forked ecosystem apps
+5.  All integrations use clean extension patterns

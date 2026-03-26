@@ -252,7 +252,7 @@ def seed_role_assignments(chama_registry, member_registry, role_defs=None):
 
 def seed_data():
     """
-    Seed all Phase A test data idempotently.
+    Seed all test data idempotently (Phase A + Phase B).
 
     Returns:
         tuple: (chama_registry, member_registry, manifest)
@@ -266,7 +266,353 @@ def seed_data():
     manifest["settings"] = seed_settings(cr)
     mr, manifest["members"] = seed_members(cr)
     manifest["roles"] = seed_role_assignments(cr, mr)
+    b_manifest = seed_phase_b(cr, mr)
+    manifest.update(b_manifest)
     return cr, mr, manifest
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Phase B — Contributions seed definitions
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Keys: (chama_code, category_code)
+CATEGORY_DEFS = [
+    # Umoja
+    {
+        "chama_code": "UMOJA", "category_code": "SHR",
+        "category_name": "Shares", "category_type": "Shares",
+        "amount_type": "Fixed", "default_amount": 5000,
+        "frequency": "Monthly", "mandatory": 1,
+        "allow_partial_payment": 1, "allow_future_prepayment": 0,
+        "grace_days": 5, "active": 1, "start_date": "2026-01-01",
+    },
+    {
+        "chama_code": "UMOJA", "category_code": "WLF",
+        "category_name": "Welfare Fund", "category_type": "Welfare",
+        "amount_type": "Fixed", "default_amount": 1000,
+        "frequency": "Monthly", "mandatory": 1,
+        "allow_partial_payment": 1, "allow_future_prepayment": 0,
+        "grace_days": 3, "active": 1, "start_date": "2026-01-01",
+    },
+    {
+        "chama_code": "UMOJA", "category_code": "EMG",
+        "category_name": "Emergency Levy", "category_type": "Levy",
+        "amount_type": "Fixed", "default_amount": 2000,
+        "frequency": "Ad Hoc", "mandatory": 0,
+        "allow_partial_payment": 0, "allow_future_prepayment": 0,
+        "grace_days": 2, "active": 1, "start_date": "2026-02-01",
+    },
+    # Harvest
+    {
+        "chama_code": "HARVEST", "category_code": "SHR",
+        "category_name": "Shares", "category_type": "Shares",
+        "amount_type": "Fixed", "default_amount": 3000,
+        "frequency": "Monthly", "mandatory": 1,
+        "allow_partial_payment": 1, "allow_future_prepayment": 0,
+        "grace_days": 5, "active": 1, "start_date": "2026-01-01",
+    },
+    {
+        "chama_code": "HARVEST", "category_code": "WLF",
+        "category_name": "Welfare", "category_type": "Welfare",
+        "amount_type": "Fixed", "default_amount": 500,
+        "frequency": "Monthly", "mandatory": 1,
+        "allow_partial_payment": 1, "allow_future_prepayment": 0,
+        "grace_days": 3, "active": 1, "start_date": "2026-01-01",
+    },
+]
+
+# Keys: (chama_code, cycle_name)
+CYCLE_DEFS = [
+    {
+        "chama_code": "UMOJA", "cycle_name": "UMOJA-FEB-2026",
+        "period_start": "2026-02-01", "period_end": "2026-02-28",
+        "frequency": "Monthly", "status": "Generated",
+    },
+    {
+        "chama_code": "UMOJA", "cycle_name": "UMOJA-MAR-2026",
+        "period_start": "2026-03-01", "period_end": "2026-03-31",
+        "frequency": "Monthly", "status": "Generated",
+    },
+    {
+        "chama_code": "HARVEST", "cycle_name": "HARVEST-MAR-2026",
+        "period_start": "2026-03-01", "period_end": "2026-03-31",
+        "frequency": "Monthly", "status": "Generated",
+    },
+]
+
+# Obligation defs — keyed by (chama_code, member_phone, cycle_name, category_code)
+# amount_paid / amount_waived are pre-set directly (no allocation engine at seed time).
+OBLIGATION_DEFS = [
+    # ── Umoja February ──────────────────────────────────────────────────────
+    {"chama_code": "UMOJA", "phone": "+254700100001", "cycle_name": "UMOJA-FEB-2026",
+     "cat_code": "SHR", "amount_due": 5000, "amount_paid": 5000, "amount_waived": 0,
+     "due_date": "2026-02-05", "grace_end_date": "2026-02-10", "status": "Paid"},
+    {"chama_code": "UMOJA", "phone": "+254700100001", "cycle_name": "UMOJA-FEB-2026",
+     "cat_code": "WLF", "amount_due": 1000, "amount_paid": 1000, "amount_waived": 0,
+     "due_date": "2026-02-05", "grace_end_date": "2026-02-08", "status": "Paid"},
+    {"chama_code": "UMOJA", "phone": "+254700100002", "cycle_name": "UMOJA-FEB-2026",
+     "cat_code": "SHR", "amount_due": 5000, "amount_paid": 3000, "amount_waived": 0,
+     "due_date": "2026-02-05", "grace_end_date": "2026-02-10", "status": "Overdue"},
+    {"chama_code": "UMOJA", "phone": "+254700100002", "cycle_name": "UMOJA-FEB-2026",
+     "cat_code": "WLF", "amount_due": 1000, "amount_paid": 0, "amount_waived": 0,
+     "due_date": "2026-02-05", "grace_end_date": "2026-02-08", "status": "Overdue"},
+    {"chama_code": "UMOJA", "phone": "+254700100003", "cycle_name": "UMOJA-FEB-2026",
+     "cat_code": "SHR", "amount_due": 5000, "amount_paid": 0, "amount_waived": 0,
+     "due_date": "2026-02-05", "grace_end_date": "2026-02-10", "status": "Overdue"},
+    {"chama_code": "UMOJA", "phone": "+254700100004", "cycle_name": "UMOJA-FEB-2026",
+     "cat_code": "WLF", "amount_due": 1000, "amount_paid": 0, "amount_waived": 1000,
+     "due_date": "2026-02-05", "grace_end_date": "2026-02-08", "status": "Waived"},
+    # ── Umoja March ─────────────────────────────────────────────────────────
+    {"chama_code": "UMOJA", "phone": "+254700100001", "cycle_name": "UMOJA-MAR-2026",
+     "cat_code": "SHR", "amount_due": 5000, "amount_paid": 5000, "amount_waived": 0,
+     "due_date": "2026-03-05", "grace_end_date": "2026-03-10", "status": "Paid"},
+    {"chama_code": "UMOJA", "phone": "+254700100001", "cycle_name": "UMOJA-MAR-2026",
+     "cat_code": "WLF", "amount_due": 1000, "amount_paid": 1000, "amount_waived": 0,
+     "due_date": "2026-03-05", "grace_end_date": "2026-03-08", "status": "Paid"},
+    {"chama_code": "UMOJA", "phone": "+254700100001", "cycle_name": "UMOJA-MAR-2026",
+     "cat_code": "EMG", "amount_due": 2000, "amount_paid": 0, "amount_waived": 0,
+     "due_date": "2026-03-12", "grace_end_date": "2026-03-14", "status": "Due"},
+    {"chama_code": "UMOJA", "phone": "+254700100002", "cycle_name": "UMOJA-MAR-2026",
+     "cat_code": "SHR", "amount_due": 5000, "amount_paid": 0, "amount_waived": 0,
+     "due_date": "2026-03-05", "grace_end_date": "2026-03-10", "status": "Due"},
+    {"chama_code": "UMOJA", "phone": "+254700100002", "cycle_name": "UMOJA-MAR-2026",
+     "cat_code": "WLF", "amount_due": 1000, "amount_paid": 0, "amount_waived": 0,
+     "due_date": "2026-03-05", "grace_end_date": "2026-03-08", "status": "Due"},
+    {"chama_code": "UMOJA", "phone": "+254700100002", "cycle_name": "UMOJA-MAR-2026",
+     "cat_code": "EMG", "amount_due": 2000, "amount_paid": 0, "amount_waived": 0,
+     "due_date": "2026-03-12", "grace_end_date": "2026-03-14", "status": "Due"},
+    {"chama_code": "UMOJA", "phone": "+254700100004", "cycle_name": "UMOJA-MAR-2026",
+     "cat_code": "SHR", "amount_due": 5000, "amount_paid": 2500, "amount_waived": 0,
+     "due_date": "2026-03-05", "grace_end_date": "2026-03-10", "status": "Partially Paid"},
+    {"chama_code": "UMOJA", "phone": "+254700100004", "cycle_name": "UMOJA-MAR-2026",
+     "cat_code": "WLF", "amount_due": 1000, "amount_paid": 1000, "amount_waived": 0,
+     "due_date": "2026-03-05", "grace_end_date": "2026-03-08", "status": "Paid"},
+    # ── Harvest March ────────────────────────────────────────────────────────
+    {"chama_code": "HARVEST", "phone": "+254711200001", "cycle_name": "HARVEST-MAR-2026",
+     "cat_code": "SHR", "amount_due": 3000, "amount_paid": 3000, "amount_waived": 0,
+     "due_date": "2026-03-06", "grace_end_date": "2026-03-11", "status": "Paid"},
+    {"chama_code": "HARVEST", "phone": "+254711200001", "cycle_name": "HARVEST-MAR-2026",
+     "cat_code": "WLF", "amount_due": 500, "amount_paid": 500, "amount_waived": 0,
+     "due_date": "2026-03-06", "grace_end_date": "2026-03-09", "status": "Paid"},
+    {"chama_code": "HARVEST", "phone": "+254711200002", "cycle_name": "HARVEST-MAR-2026",
+     "cat_code": "SHR", "amount_due": 3000, "amount_paid": 1000, "amount_waived": 0,
+     "due_date": "2026-03-06", "grace_end_date": "2026-03-11", "status": "Partially Paid"},
+    {"chama_code": "HARVEST", "phone": "+254711200002", "cycle_name": "HARVEST-MAR-2026",
+     "cat_code": "WLF", "amount_due": 500, "amount_paid": 0, "amount_waived": 0,
+     "due_date": "2026-03-06", "grace_end_date": "2026-03-09", "status": "Due"},
+    {"chama_code": "HARVEST", "phone": "+254711200003", "cycle_name": "HARVEST-MAR-2026",
+     "cat_code": "SHR", "amount_due": 3000, "amount_paid": 0, "amount_waived": 0,
+     "due_date": "2026-03-06", "grace_end_date": "2026-03-11", "status": "Due"},
+    {"chama_code": "HARVEST", "phone": "+254711200003", "cycle_name": "HARVEST-MAR-2026",
+     "cat_code": "WLF", "amount_due": 500, "amount_paid": 0, "amount_waived": 0,
+     "due_date": "2026-03-06", "grace_end_date": "2026-03-09", "status": "Due"},
+]
+
+# Payment defs — keyed by (chama_code, member_phone, payment_reference) or date+amount for Cash
+# status is seeded as Recorded; allocations are exercised by the test suite.
+PAYMENT_DEFS = [
+    {"id": "U-001", "chama_code": "UMOJA", "phone": "+254700100001",
+     "payment_date": "2026-02-04 09:15:00", "amount_received": 6000,
+     "payment_method": "Mobile Money", "payment_reference": "UMOJA-MP-0001", "source_channel": "Desk"},
+    {"id": "U-002", "chama_code": "UMOJA", "phone": "+254700100002",
+     "payment_date": "2026-02-07 10:20:00", "amount_received": 3000,
+     "payment_method": "Bank", "payment_reference": "UMOJA-BK-0001", "source_channel": "Desk"},
+    {"id": "U-003", "chama_code": "UMOJA", "phone": "+254700100001",
+     "payment_date": "2026-03-04 08:00:00", "amount_received": 6000,
+     "payment_method": "Mobile Money", "payment_reference": "UMOJA-MP-0002", "source_channel": "Mobile"},
+    {"id": "U-004", "chama_code": "UMOJA", "phone": "+254700100004",
+     "payment_date": "2026-03-06 14:10:00", "amount_received": 3500,
+     "payment_method": "Cash", "payment_reference": None, "source_channel": "Desk"},
+    {"id": "U-005", "chama_code": "UMOJA", "phone": "+254700100002",
+     "payment_date": "2026-03-15 11:45:00", "amount_received": 4000,
+     "payment_method": "Mobile Money", "payment_reference": "UMOJA-MP-0003", "source_channel": "API"},
+    {"id": "U-006", "chama_code": "UMOJA", "phone": "+254700100002",
+     "payment_date": "2026-03-15 11:47:00", "amount_received": 4000,
+     "payment_method": "Mobile Money", "payment_reference": "UMOJA-MP-0003", "source_channel": "API"},
+    {"id": "U-007", "chama_code": "UMOJA", "phone": "+254700100001",
+     "payment_date": "2026-03-13 09:30:00", "amount_received": 2000,
+     "payment_method": "Mobile Money", "payment_reference": "UMOJA-MP-LEVY-01", "source_channel": "Desk"},
+    {"id": "H-001", "chama_code": "HARVEST", "phone": "+254711200001",
+     "payment_date": "2026-03-05 09:00:00", "amount_received": 3500,
+     "payment_method": "Mobile Money", "payment_reference": "HARVEST-MP-0001", "source_channel": "Desk"},
+    {"id": "H-002", "chama_code": "HARVEST", "phone": "+254711200002",
+     "payment_date": "2026-03-08 13:00:00", "amount_received": 1000,
+     "payment_method": "Bank", "payment_reference": "HARVEST-BK-0001", "source_channel": "Desk"},
+]
+
+
+def seed_categories(chama_registry, cat_defs=None):
+    """Returns (cat_registry, log). cat_registry = {("UMOJA", "SHR"): "CCAT-000X", ...}"""
+    cat_registry = {}
+    log = []
+    for cd in (cat_defs or CATEGORY_DEFS):
+        chama_name = chama_registry[cd["chama_code"]]
+        existing = frappe.db.get_value(
+            "Chama Contribution Category",
+            {"chama": chama_name, "category_code": cd["category_code"]},
+            "name",
+        )
+        if existing:
+            cat_registry[(cd["chama_code"], cd["category_code"])] = existing
+            log.append(_log_existing(f"Category {cd['category_code']} in {cd['chama_code']} → {existing}"))
+            continue
+        fields = {k: v for k, v in cd.items() if k != "chama_code"}
+        fields["chama"] = chama_name
+        doc = frappe.get_doc({"doctype": "Chama Contribution Category", **fields})
+        doc.insert(ignore_permissions=True)
+        cat_registry[(cd["chama_code"], cd["category_code"])] = doc.name
+        log.append(_log_created(f"Category {cd['category_code']} in {cd['chama_code']} → {doc.name}"))
+    frappe.db.commit()
+    return cat_registry, log
+
+
+def seed_cycles(chama_registry, cycle_defs=None):
+    """Returns (cycle_registry, log). cycle_registry = {("UMOJA", "UMOJA-FEB-2026"): "CYC-000X", ...}"""
+    cycle_registry = {}
+    log = []
+    for cd in (cycle_defs or CYCLE_DEFS):
+        chama_name = chama_registry[cd["chama_code"]]
+        existing = frappe.db.get_value(
+            "Chama Contribution Cycle",
+            {"chama": chama_name, "cycle_name": cd["cycle_name"]},
+            "name",
+        )
+        if existing:
+            cycle_registry[(cd["chama_code"], cd["cycle_name"])] = existing
+            log.append(_log_existing(f"Cycle {cd['cycle_name']} → {existing}"))
+            continue
+        fields = {k: v for k, v in cd.items() if k != "chama_code"}
+        fields["chama"] = chama_name
+        doc = frappe.get_doc({"doctype": "Chama Contribution Cycle", **fields})
+        doc.insert(ignore_permissions=True)
+        cycle_registry[(cd["chama_code"], cd["cycle_name"])] = doc.name
+        log.append(_log_created(f"Cycle {cd['cycle_name']} → {doc.name}"))
+    frappe.db.commit()
+    return cycle_registry, log
+
+
+def seed_obligations(chama_registry, member_registry, cat_registry, cycle_registry, ob_defs=None):
+    """Returns (obligation_registry, log). obligation_registry = {(chama_code, phone, cycle_name, cat_code): "COB-000X", ...}"""
+    ob_registry = {}
+    log = []
+    for od in (ob_defs or OBLIGATION_DEFS):
+        chama_name = chama_registry[od["chama_code"]]
+        member_name = member_registry.get((od["chama_code"], od["phone"]))
+        cat_name = cat_registry.get((od["chama_code"], od["cat_code"]))
+        cycle_name = cycle_registry.get((od["chama_code"], od["cycle_name"]))
+
+        if not member_name or not cat_name or not cycle_name:
+            log.append(("SKIPPED", f"Missing refs for {od['chama_code']} {od['phone']} {od['cycle_name']} {od['cat_code']}"))
+            continue
+
+        key = (od["chama_code"], od["phone"], od["cycle_name"], od["cat_code"])
+        existing = frappe.db.get_value(
+            "Chama Contribution Obligation",
+            {"chama": chama_name, "member": member_name, "cycle": cycle_name, "contribution_category": cat_name},
+            "name",
+        )
+        if existing:
+            ob_registry[key] = existing
+            log.append(_log_existing(f"Obligation {key} → {existing}"))
+            continue
+
+        outstanding = max(od["amount_due"] - od["amount_paid"] - od["amount_waived"], 0)
+        doc = frappe.get_doc({
+            "doctype": "Chama Contribution Obligation",
+            "chama": chama_name,
+            "member": member_name,
+            "cycle": cycle_name,
+            "contribution_category": cat_name,
+            "amount_due": od["amount_due"],
+            "amount_paid": 0,
+            "amount_waived": 0,
+            "amount_outstanding": od["amount_due"],
+            "due_date": od["due_date"],
+            "grace_end_date": od["grace_end_date"],
+            "status": "Pending",
+            "source_type": "Scheduled",
+        })
+        doc.insert(ignore_permissions=True)
+        # Force the exact seed amounts and status, bypassing _compute_status()
+        frappe.db.set_value("Chama Contribution Obligation", doc.name, {
+            "amount_paid": od["amount_paid"],
+            "amount_waived": od["amount_waived"],
+            "amount_outstanding": outstanding,
+            "status": od["status"],
+        }, update_modified=False)
+        ob_registry[key] = doc.name
+        log.append(_log_created(f"Obligation {key} → {doc.name}"))
+    frappe.db.commit()
+    return ob_registry, log
+
+
+def seed_payments(chama_registry, member_registry, payment_defs=None):
+    """Returns (payment_registry, log). payment_registry = {payment_id: "CPT-000X", ...}"""
+    pay_registry = {}
+    log = []
+    for pd in (payment_defs or PAYMENT_DEFS):
+        chama_name = chama_registry[pd["chama_code"]]
+        member_name = member_registry.get((pd["chama_code"], pd["phone"]))
+        if not member_name:
+            log.append(("SKIPPED", f"Member not found for {pd['id']}"))
+            continue
+
+        filters = {
+            "chama": chama_name,
+            "member": member_name,
+            "amount_received": pd["amount_received"],
+            "payment_date": pd["payment_date"],
+        }
+        if pd.get("payment_reference"):
+            filters["payment_reference"] = pd["payment_reference"]
+
+        existing = frappe.db.get_value("Chama Contribution Payment", filters, "name")
+        if existing:
+            pay_registry[pd["id"]] = existing
+            log.append(_log_existing(f"Payment {pd['id']} → {existing}"))
+            continue
+
+        doc = frappe.get_doc({
+            "doctype": "Chama Contribution Payment",
+            "chama": chama_name,
+            "member": member_name,
+            "payment_date": pd["payment_date"],
+            "amount_received": pd["amount_received"],
+            "payment_method": pd["payment_method"],
+            "payment_reference": pd.get("payment_reference"),
+            "source_channel": pd["source_channel"],
+            "status": "Recorded",
+            "entered_by": "Administrator",
+        })
+        doc.insert(ignore_permissions=True)
+        pay_registry[pd["id"]] = doc.name
+        log.append(_log_created(f"Payment {pd['id']} → {doc.name}"))
+    frappe.db.commit()
+    return pay_registry, log
+
+
+def seed_phase_b(chama_registry, member_registry):
+    """
+    Seed all Phase B test data idempotently.
+
+    Returns:
+        dict: manifest sub-keys b_categories, b_cycles, b_obligations, b_payments
+              plus registries cat_registry, cycle_registry, ob_registry, pay_registry.
+    """
+    manifest = {}
+    cat_registry, manifest["b_categories"] = seed_categories(chama_registry)
+    cycle_registry, manifest["b_cycles"] = seed_cycles(chama_registry)
+    ob_registry, manifest["b_obligations"] = seed_obligations(
+        chama_registry, member_registry, cat_registry, cycle_registry
+    )
+    pay_registry, manifest["b_payments"] = seed_payments(chama_registry, member_registry)
+    manifest["_registries"] = {
+        "cat_registry": cat_registry,
+        "cycle_registry": cycle_registry,
+        "ob_registry": ob_registry,
+        "pay_registry": pay_registry,
+    }
+    return manifest
 
 
 def get_chama_registry():

@@ -1,0 +1,145 @@
+{
+ "actions": [],
+ "autoname": "COB-.####",
+ "creation": "2026-03-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "chama",
+  "member",
+  "cycle",
+  "contribution_category",
+  "amount_due",
+  "amount_paid",
+  "amount_waived",
+  "amount_outstanding",
+  "due_date",
+  "grace_end_date",
+  "status",
+  "penalty_applied",
+  "source_type",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "chama",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Chama",
+   "options": "Chama",
+   "reqd": 1
+  },
+  {
+   "fieldname": "member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Member",
+   "options": "Chama Member",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cycle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Cycle",
+   "options": "Chama Contribution Cycle"
+  },
+  {
+   "fieldname": "contribution_category",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Contribution Category",
+   "options": "Chama Contribution Category",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount_due",
+   "fieldtype": "Currency",
+   "label": "Amount Due",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "amount_paid",
+   "fieldtype": "Currency",
+   "label": "Amount Paid",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "amount_waived",
+   "fieldtype": "Currency",
+   "label": "Amount Waived",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount_outstanding",
+   "fieldtype": "Currency",
+   "label": "Amount Outstanding",
+   "read_only": 1
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Due Date"
+  },
+  {
+   "fieldname": "grace_end_date",
+   "fieldtype": "Date",
+   "label": "Grace End Date"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nDue\nPartially Paid\nPaid\nOverdue\nWaived\nCancelled",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "penalty_applied",
+   "fieldtype": "Check",
+   "label": "Penalty Applied"
+  },
+  {
+   "default": "Scheduled",
+   "fieldname": "source_type",
+   "fieldtype": "Select",
+   "label": "Source Type",
+   "options": "Scheduled\nAd Hoc\nAdjustment"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Chama Contributions",
+ "name": "Chama Contribution Obligation",
+ "naming_rule": "Expression (by Autoname)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
