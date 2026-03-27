@@ -7,10 +7,29 @@ Rules:
 - Payment status → Allocated if fully consumed, Partially Allocated if remainder remains.
 - No wallet / credit carried over; any unallocated remainder stays with the payment.
 - All DB mutations happen within the caller's transaction; no explicit commit here.
+
+Payment Status State Machine
+-----------------------------
+Valid transitions (enforced by this engine):
+
+    Recorded ──► Allocated          (payment fully consumed by obligations)
+    Recorded ──► Partially Allocated (payment partially consumed)
+    Recorded ──► Flagged            (duplicate reference detected — set by Payment controller)
+    Allocated ──► Reversed          (all allocations unwound)
+    Partially Allocated ──► Reversed
+
+Blocked transitions:
+    Allocated → Allocated           (re-allocation of a fully allocated payment is forbidden)
+    Flagged → Allocated             (flagged payments must be reviewed before allocation)
+    Reversed → *                    (Reversed is terminal; re-allocation is forbidden)
+
+See also: OBLIGATION_STATUS_MACHINE in chama_contribution_obligation.py
 """
 
+import json
+
 import frappe
-from frappe.utils import flt
+from frappe.utils import flt, now_datetime
 
 
 OPEN_STATUSES = ("Due", "Overdue", "Partially Paid", "Pending")
@@ -21,6 +40,33 @@ STATUS_PRIORITY = {
     "Partially Paid": 2,
     "Pending": 3,
 }
+
+# Payments in these statuses cannot be (re-)allocated.
+PAYMENT_BLOCKED_STATUSES = ("Reversed", "Allocated", "Flagged")
+
+
+def _create_audit_log(chama, event_type, actor, doc_type, doc_name, summary, before_state=None, after_state=None):
+    """
+    Insert one immutable Chama Audit Log record.
+
+    Failures are swallowed and logged so that an audit-log write error never
+    blocks a financial transaction.
+    """
+    try:
+        frappe.get_doc({
+            "doctype": "Chama Audit Log",
+            "chama": chama,
+            "event_type": event_type,
+            "actor": actor or frappe.session.user,
+            "timestamp": now_datetime(),
+            "document_type": doc_type,
+            "document_name": doc_name,
+            "summary": summary,
+            "before_state": json.dumps(before_state, default=str) if before_state else None,
+            "after_state": json.dumps(after_state, default=str) if after_state else None,
+        }).insert(ignore_permissions=True)
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), f"Audit log failed: {event_type} / {doc_name}")
 
 
 def get_open_obligations(chama, member, target_category=None, allow_future=False):
@@ -109,13 +155,18 @@ def allocate_payment(payment_name, target_category=None, allow_future=False):
     """
     payment = frappe.get_doc("Chama Contribution Payment", payment_name)
 
-    if payment.status in ("Reversed",):
-        frappe.throw(f"Payment {payment_name} has been reversed and cannot be re-allocated.")
+    if payment.status in PAYMENT_BLOCKED_STATUSES:
+        frappe.throw(
+            f"Payment {payment_name} has status '{payment.status}' and cannot be allocated. "
+            f"Blocked statuses: {', '.join(PAYMENT_BLOCKED_STATUSES)}.",
+            frappe.ValidationError,
+        )
 
     obligations = get_open_obligations(
         payment.chama, payment.member, target_category=target_category, allow_future=allow_future
     )
 
+    status_before = payment.status
     remaining = flt(payment.amount_received)
     rows_created = 0
     allocated_total = 0.0
@@ -159,12 +210,28 @@ def allocate_payment(payment_name, target_category=None, allow_future=False):
 
     payment.save(ignore_permissions=True)
 
-    return {
+    result = {
         "allocated_total": allocated_total,
         "rows_created": rows_created,
         "payment_status": payment.status,
         "unallocated_remainder": remaining,
     }
+
+    _create_audit_log(
+        chama=payment.chama,
+        event_type="Payment Allocated",
+        actor=frappe.session.user,
+        doc_type="Chama Contribution Payment",
+        doc_name=payment_name,
+        summary=(
+            f"Allocated {allocated_total:.2f} across {rows_created} obligation(s). "
+            f"Payment status: {payment.status}. Unallocated remainder: {remaining:.2f}."
+        ),
+        before_state={"status": status_before},
+        after_state=result,
+    )
+
+    return result
 
 
 def reverse_payment_allocations(payment_name):
@@ -194,11 +261,29 @@ def reverse_payment_allocations(payment_name):
         recompute_obligation_amounts_and_status(ob_doc)
         reversed_rows += 1
 
+    status_before = payment.status
+
     payment.allocations = []
     payment.status = "Reversed"
     payment.save(ignore_permissions=True)
 
-    return {
+    result = {
         "reversed_rows": reversed_rows,
         "payment_status": payment.status,
     }
+
+    _create_audit_log(
+        chama=payment.chama,
+        event_type="Payment Reversed",
+        actor=frappe.session.user,
+        doc_type="Chama Contribution Payment",
+        doc_name=payment_name,
+        summary=(
+            f"Reversed {reversed_rows} allocation row(s). "
+            f"Payment status changed from {status_before} to Reversed."
+        ),
+        before_state={"status": status_before},
+        after_state=result,
+    )
+
+    return result

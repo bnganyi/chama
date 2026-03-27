@@ -3,6 +3,52 @@ from frappe.model.document import Document
 from chama.chama_core.utils.tenant import ensure_member_matches_chama
 
 
+# Obligation Status State Machine
+# ---------------------------------
+# Each status is owned by exactly one actor. No actor may set a status that
+# belongs to another actor without going through the prescribed transition.
+#
+#   Actor: DocType controller (this file — validate / _compute_status)
+#       Pending → Paid          (when amount_paid + amount_waived >= amount_due on save)
+#       [never sets Due, Overdue, Partially Paid, Cancelled, Waived]
+#
+#   Actor: Scheduler (obligation_status_jobs.py)
+#       Pending → Due           (due_date reached)
+#       Due → Overdue           (grace_end_date passed)
+#       Partially Paid → Overdue (grace_end_date passed and still outstanding)
+#       [never sets Paid, Cancelled, Waived]
+#
+#   Actor: Allocation Engine (allocation_engine.py — recompute_obligation_amounts_and_status)
+#       * → Partially Paid      (amount_paid > 0 but not fully settled)
+#       * → Paid                (amount_paid + amount_waived >= amount_due)
+#       [never sets Due, Overdue, Pending]
+#
+#   Actor: Manual / API
+#       Due → Waived            (treasurer marks obligation waived)
+#       Due → Cancelled         (treasurer cancels obligation)
+#
+# IMPORTANT: _compute_status() intentionally does NOT set "Partially Paid".
+# That responsibility belongs exclusively to the allocation engine so that
+# scheduler-set "Due" and "Overdue" statuses are not silently demoted on save.
+OBLIGATION_STATUS_MACHINE = {
+    "controller": {
+        "sets": ("Paid",),
+        "never_overrides": ("Due", "Overdue", "Partially Paid", "Cancelled", "Waived"),
+    },
+    "scheduler": {
+        "sets": ("Due", "Overdue"),
+        "never_overrides": ("Paid", "Cancelled", "Waived"),
+    },
+    "allocation_engine": {
+        "sets": ("Partially Paid", "Paid"),
+        "never_overrides": ("Cancelled", "Waived"),
+    },
+    "manual": {
+        "sets": ("Waived", "Cancelled"),
+    },
+}
+
+
 class ChamaContributionObligation(Document):
     def validate(self):
         self._validate_cross_chama()
@@ -44,7 +90,15 @@ class ChamaContributionObligation(Document):
         self.amount_outstanding = max(outstanding, 0)
 
     def _compute_status(self):
-        """Derive status from amounts. Terminal statuses are never overridden here."""
+        """
+        Set status to Paid when fully settled. That is the only transition the
+        controller is authorised to make (see OBLIGATION_STATUS_MACHINE above).
+
+        "Partially Paid" is set exclusively by the allocation engine.
+        "Due" and "Overdue" are set exclusively by the scheduler.
+        This method must never override scheduler-set statuses on an obligation
+        that still has an outstanding balance.
+        """
         if self.status in ("Cancelled", "Waived"):
             return
 
@@ -54,8 +108,6 @@ class ChamaContributionObligation(Document):
 
         if paid + waived >= due:
             self.status = "Paid"
-        elif paid > 0:
-            self.status = "Partially Paid"
 
 
 def flt(value):

@@ -533,7 +533,18 @@ def seed_obligations(chama_registry, member_registry, cat_registry, cycle_regist
             "source_type": "Scheduled",
         })
         doc.insert(ignore_permissions=True)
-        # Force the exact seed amounts and status, bypassing _compute_status()
+        # frappe.db.set_value is intentionally used here to force the exact seed
+        # amounts and status onto the obligation AFTER insert.
+        #
+        # Why: doc.insert() triggers validate() → _compute_status(), which would
+        # override the desired seed status (e.g. "Overdue") with whatever the
+        # amounts imply at insert time (e.g. "Partially Paid").  The seed data
+        # intentionally represents mid-lifecycle states that cannot be created
+        # via normal document flow in a single step.
+        #
+        # This usage is ONLY acceptable in seed/test-setup code.
+        # NEVER use frappe.db.set_value to bypass validation in services, APIs,
+        # or scheduler jobs that touch financial amounts.
         frappe.db.set_value("Chama Contribution Obligation", doc.name, {
             "amount_paid": od["amount_paid"],
             "amount_waived": od["amount_waived"],

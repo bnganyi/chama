@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "autoname": "AUD-.####",
+ "creation": "2026-03-26 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "chama",
+  "event_type",
+  "actor",
+  "timestamp",
+  "document_type",
+  "document_name",
+  "summary",
+  "before_state",
+  "after_state"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "chama",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Chama",
+   "options": "Chama",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Event Type",
+   "options": "Payment Allocated\nPayment Reversed\nObligation Status Changed\nAccess Denied",
+   "reqd": 1
+  },
+  {
+   "fieldname": "actor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Actor",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "timestamp",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Timestamp",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Data",
+   "label": "Document Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_name",
+   "fieldtype": "Data",
+   "label": "Document Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "before_state",
+   "fieldtype": "Long Text",
+   "label": "Before State (JSON)"
+  },
+  {
+   "fieldname": "after_state",
+   "fieldtype": "Long Text",
+   "label": "After State (JSON)"
+  }
+ ],
+ "links": [],
+ "modified": "2026-03-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Chama Core",
+ "name": "Chama Audit Log",
+ "naming_rule": "Expression (by Autoname)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "read": 1,
+   "report": 1,
+   "export": 1,
+   "role": "System Manager"
+  }
+ ],
+ "sort_field": "timestamp",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 0
+}
